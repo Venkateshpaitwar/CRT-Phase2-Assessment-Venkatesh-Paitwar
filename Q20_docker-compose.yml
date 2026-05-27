@@ -1,0 +1,42 @@
+# ============================================================
+# Q20 — docker-compose.yml
+# Services: (a) db — PostgreSQL 15, (b) app — Spring Boot
+# ============================================================
+
+version: "3.8"     # Docker Compose file format version
+
+services:
+
+  # ---- (a) Database Service ----
+  db:
+    image: postgres:15                   # Official PostgreSQL 15 image from Docker Hub
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: mydb                  # Name of the database to create on startup
+      POSTGRES_USER: myuser              # Database username
+      POSTGRES_PASSWORD: mypassword      # Database password (use secrets in production!)
+    ports:
+      - "5432:5432"                      # Expose PostgreSQL port to host (optional, for tools like DBeaver)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # Persist DB data even if container is removed
+
+  # ---- (b) Application Service ----
+  app:
+    image: myapp:latest                  # The image we built with: docker build -t myapp:latest .
+    container_name: spring_app
+    ports:
+      - "8080:8080"                      # Map host port 8080 → container port 8080
+    environment:
+      # Tell Spring Boot how to connect to the 'db' service above
+      # Use the service name "db" as the hostname — Docker Compose handles DNS resolution
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydb
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypassword
+    depends_on:
+      - db                               # app container starts AFTER db container is started
+                                         # Note: this does not wait for DB to be fully ready,
+                                         # only for the container to start. Use healthcheck for full readiness.
+
+# Named volume — stores PostgreSQL data outside the container lifecycle
+volumes:
+  postgres_data:

@@ -1,0 +1,32 @@
+# ============================================================
+# Q14 — Spring Cloud Gateway: Route Configuration
+# File: src/main/resources/application.yml
+# ============================================================
+
+spring:
+  application:
+    name: api-gateway          # Name of this gateway service
+
+  cloud:
+    gateway:
+      routes:
+
+        # Route 1: Forward all requests starting with /api/orders/ to order-service
+        - id: order-route                           # Unique name for this route
+          uri: lb://order-service                   # lb:// = load-balanced URI resolved via Eureka
+          predicates:
+            - Path=/api/orders/**                   # Match any URL starting with /api/orders/
+
+        # Route 2: Forward all requests starting with /api/users/ to user-service
+        - id: user-route
+          uri: lb://user-service                    # Eureka resolves "user-service" to actual IP:port
+          predicates:
+            - Path=/api/users/**                    # Match any URL starting with /api/users/
+
+server:
+  port: 8080                   # All frontend requests come to this single gateway port
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka     # Gateway also registers with Eureka

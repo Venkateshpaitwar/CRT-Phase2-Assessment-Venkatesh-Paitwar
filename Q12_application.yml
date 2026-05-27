@@ -1,0 +1,21 @@
+# ============================================================
+# Q12 — Register product-service with Eureka Server
+# File: src/main/resources/application.yml
+# ============================================================
+
+spring:
+  application:
+    name: product-service    # This name is what Eureka uses to identify this service
+                              # Other services use this name to call it (e.g., lb://product-service)
+
+server:
+  port: 8082                 # The port this service runs on (can be any free port)
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka  # URL of the Eureka server to register with
+    register-with-eureka: true    # This service should register itself with Eureka (default true)
+    fetch-registry: true          # This service should fetch the list of other services (default true)
+  instance:
+    prefer-ip-address: true       # Register using IP address instead of hostname (useful in containers)

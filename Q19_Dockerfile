@@ -1,0 +1,40 @@
+# ============================================================
+# Q19 — Dockerfile for Spring Boot Application
+# Base image: eclipse-temurin:21-jre
+# JAR location: target/app.jar
+# App runs on port 8080
+# ============================================================
+
+# Use eclipse-temurin JRE 21 as base image
+# JRE (not JDK) is smaller — we only need to RUN the app, not compile it
+FROM eclipse-temurin:21-jre
+
+# Set working directory inside the container
+# All subsequent commands run from this directory
+WORKDIR /app
+
+# Copy the compiled JAR from the host machine into the container
+# Format: COPY <source-on-host> <destination-in-container>
+COPY target/app.jar app.jar
+
+# Inform Docker that the container listens on port 8080 at runtime
+# This is documentation only — you still need to map it with -p in docker run
+EXPOSE 8080
+
+# Command to run when the container starts
+# "java -jar app.jar" starts the Spring Boot application
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
+# ============================================================
+# Docker Commands (run from project root — where pom.xml is):
+# ============================================================
+# Build the Docker image and tag it as myapp:latest
+#   docker build -t myapp:latest .
+#
+# Run the container, mapping host port 8080 to container port 8080
+#   docker run -p 8080:8080 myapp:latest
+#
+# Run in detached (background) mode:
+#   docker run -d -p 8080:8080 myapp:latest
+# ============================================================
